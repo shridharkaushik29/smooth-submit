@@ -1,0 +1,44 @@
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+        <script src="../smooth-submit.js"></script>
+    </head>
+    <body>
+        <form class="smooth-submit" id="form" action="response.json" method="POST">
+            <input name="name" type="text">
+            <input type="submit" value="Submit">
+        </form>
+
+        <a id="link" class="smooth-submit" href="response.json">Click Me</a>
+
+        <div id="response"></div>
+    </body>
+    <script>
+        $('#form').smoothSubmit({
+            preConfirm: function (element, data) {
+                return new Promise(function (resolve) {
+                    console.log(element, data);
+                })
+            }
+        }).on('aftersubmit', function (e, data) {
+            console.log(data);
+        })
+
+        $('#link').smoothSubmit({
+            preConfirm: function () {
+                return new Promise(function (resolve, reject) {
+                    if (confirm("Are you sure?")) {
+                        resolve();
+                    } else {
+                        reject();
+                    }
+                })
+            }
+        }).on('aftersubmit', function (e, data) {
+            console.log(data)
+        })
+    </script>
+</html>
