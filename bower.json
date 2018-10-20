@@ -5,8 +5,8 @@
   "authors": [
     "shridharkaushik29"
   ],
-  "dependencies":{
-      "jquery":"*"
+  "dependencies": {
+    "jquery": "*"
   },
   "description": "smooth form submiting in html5",
   "license": "MIT",

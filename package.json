@@ -1,0 +1,11 @@
+{
+  "name": "smooth-submit",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "description": "smooth form submiting in html5",
+  "author": "Shridhar Sharma",
+  "license": "MIT",
+  "dependencies": {
+    "jquery": "^3.3.1"
+  }
+}
