@@ -1,9 +1,10 @@
 {
   "name": "smooth-submit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "src/index.js",
   "description": "smooth form submiting in html5",
   "author": "Shridhar Sharma",
+  "repository": "https://github.com/shridharkaushik29/smooth-submit",
   "license": "MIT",
   "dependencies": {
     "jquery": "^3.3.1"
