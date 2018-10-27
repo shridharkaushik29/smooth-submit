@@ -55,14 +55,4 @@ $(document).on('submit click', '.smooth-submit', function (e) {
         });
     });
 });
-$(document).on('click', '.choose-file', function (e) {
-    // @ts-ignore
-    var currentTarget = e.currentTarget;
-    var attributes = currentTarget.attributes;
-    // @ts-ignore
-    $.crud().chooseFile({
-        multiple: eval(attributes.multiple),
-    });
-    // $(currentTarget).trigger('filechoosen', [file]);
-});
 //# sourceMappingURL=index.js.map

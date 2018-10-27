@@ -85,16 +85,3 @@ $(document).on('submit click', '.smooth-submit', function (e) {
         })
     })
 })
-
-
-$(document).on('click', '.choose-file', e => {
-    // @ts-ignore
-    const currentTarget: HTMLButtonElement = e.currentTarget;
-    const {attributes} = currentTarget;
-    // @ts-ignore
-    $.crud().chooseFile({
-        multiple: eval(attributes.multiple),
-
-    })
-    // $(currentTarget).trigger('filechoosen', [file]);
-})
