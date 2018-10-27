@@ -12,19 +12,15 @@ var __assign = (this && this.__assign) || function () {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var $ = require("jquery");
-var send = function (settings) { return new Promise(function (success, error) {
-    settings.success = success;
-    settings.error = error;
-    $.ajax(settings);
-}); };
 $(document).on('submit click', '.smooth-submit', function (e) {
     e.preventDefault();
+    // @ts-ignore
     var target = e.currentTarget;
     var options = __assign({}, target.smoothSubmitOptions);
     var ajaxSettings = {};
     var action = options.action, type = options.type, preConfirm = options.preConfirm;
     var data;
-    switch (target.tagName.toLowerCase()) {
+    switch ($(target).prop('tagName').toLowerCase()) {
         case 'form':
             action = $(target).attr('action') || action;
             type = $(target).attr('method') || type;
@@ -51,12 +47,12 @@ $(document).on('submit click', '.smooth-submit', function (e) {
         confirmPromise.resolve();
     }
     confirmPromise.promise().then(function () {
-        send(ajaxSettings).then(function (data) {
+        ajaxSettings.success = function (data) {
             $(target).trigger('aftersubmit', [data]);
-        });
+        };
+        $.ajax(ajaxSettings);
     });
 });
-// @ts-ignore
 $.fn.smoothSubmit = function (options) {
     $.each(this, function () {
         this.smoothSubmitOptions = options;

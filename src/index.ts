@@ -1,24 +1,30 @@
 import * as $ from "jquery";
 import AjaxSettings = JQuery.AjaxSettings;
 
+declare global {
+
+    interface JQuery<TElement = HTMLElement> {
+        smoothSubmit(options: SmoothSubmitOptions): JQuery<TElement>;
+    }
+
+    interface Element {
+        smoothSubmitOptions: SmoothSubmitOptions
+    }
+}
+
+
 export interface SmoothSubmitOptions {
     action?: string,
     type?: "get" | "post" | string,
-    preConfirm?: (target: Element, data: FormData | Object) => Promise<any>
+    preConfirm?: (target: Element, data: FormData | Object) => Promise<any>,
 }
-
-const send = (settings: AjaxSettings): Promise<any> => new Promise((success, error) => {
-    settings.success = success;
-    settings.error = error;
-    $.ajax(settings);
-})
 
 $(document).on('submit click', '.smooth-submit', function (e) {
     e.preventDefault();
-    const target = e.currentTarget;
+    // @ts-ignore
+    const target = <Element> e.currentTarget;
     const options = {
-        //@ts-ignore
-        ...<SmoothSubmitOptions> target.smoothSubmitOptions
+        ...target.smoothSubmitOptions
     }
 
     const ajaxSettings: AjaxSettings = {}
@@ -26,7 +32,7 @@ $(document).on('submit click', '.smooth-submit', function (e) {
     let {action, type, preConfirm} = options;
     let data: FormData | Object;
 
-    switch (target.tagName.toLowerCase()) {
+    switch ($(target).prop('tagName').toLowerCase()) {
         case 'form':
             action = $(target).attr('action') || action
             type = $(target).attr('method') || type
@@ -58,13 +64,13 @@ $(document).on('submit click', '.smooth-submit', function (e) {
     }
 
     confirmPromise.promise().then(() => {
-        send(ajaxSettings).then(data => {
-            $(target).trigger('aftersubmit', [data])
-        })
+        ajaxSettings.success = data => {
+            $(target).trigger('aftersubmit', [data]);
+        }
+        $.ajax(ajaxSettings);
     })
 })
 
-// @ts-ignore
 $.fn.smoothSubmit = function (options: SmoothSubmitOptions) {
     $.each(this, function () {
         this.smoothSubmitOptions = options;
