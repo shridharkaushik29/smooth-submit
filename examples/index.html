@@ -4,16 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.0.0/polyfill.min.js"></script>
-    <script src="../smooth-submit.min.js"></script>
+    <script src="../smooth-submit.js"></script>
 </head>
 <body>
-<form class="smooth-submit" id="form" action="response.json" method="POST">
-    <input name="name" type="text">
-    <input type="submit" value="Submit">
-</form>
+<!--<form class="smooth-submit" id="form" action="response.json" method="POST">-->
+<!--<input name="name" type="text">-->
+<!--<input type="submit" value="Submit">-->
+<!--</form>-->
 
-<a id="link" class="smooth-submit" href="response.json">Click Me</a>
+<a id="link" method="post" class="smooth-submit" href="response.json" params="params">Click Me</a>
+
+<button type="button" id="file">Choose File</button>
+<img>
 
 <div id="response"></div>
 </body>
@@ -30,17 +34,42 @@
     })
 
     $('#link').smoothSubmit({
-        preConfirm: function () {
-            return new Promise(function (resolve, reject) {
-                if (confirm("Are you sure?")) {
-                    resolve();
-                } else {
-                    reject();
-                }
-            })
+        crudOptions: {
+            notify: true,
+            checkDataType: true
         }
+        // preConfirm: function (element, data) {
+        //     return new Promise(function (resolve, reject) {
+        //         if (confirm("Are you sure?")) {
+        //             resolve();
+        //         } else {
+        //             reject();
+        //         }
+        //     })
+        // }
     }).on('aftersubmit', function (e, data) {
         alert(JSON.stringify(data))
+    })
+
+    var params = {
+        class: "ABC",
+        name: {
+            fname: [
+                "s",
+                "h",
+                "r"
+            ],
+            lname: "Kaushik"
+        }
+    }
+
+    $('#file').on('click', function () {
+        $.crud().chooseFile().then(file => {
+            $('img').attr('src', file.url)
+            params.image = {
+                file: file
+            };
+        });
     })
 </script>
 </html>

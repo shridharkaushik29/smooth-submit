@@ -1,5 +1,7 @@
 import * as $ from "jquery";
 import AjaxSettings = JQuery.AjaxSettings;
+import {CrudRequest} from "crud-sk";
+import {RequestOptions} from "crud-sk/src";
 
 declare global {
 
@@ -7,16 +9,31 @@ declare global {
         smoothSubmit(options: SmoothSubmitOptions): JQuery<TElement>;
     }
 
+    interface JQueryStatic {
+        crud(): CrudRequest
+    }
+
     interface Element {
         smoothSubmitOptions: SmoothSubmitOptions
     }
 }
 
-
 export interface SmoothSubmitOptions {
     action?: string,
     type?: "get" | "post" | string,
     preConfirm?: (target: Element, data: FormData | Object) => Promise<any>,
+    crudOptions?: RequestOptions
+}
+
+const $crud = new CrudRequest();
+
+jQuery.crud = () => $crud;
+
+jQuery.fn.smoothSubmit = function (options: SmoothSubmitOptions) {
+    $.each(this, function () {
+        this.smoothSubmitOptions = options;
+    });
+    return this;
 }
 
 $(document).on('submit click', '.smooth-submit', function (e) {
@@ -27,33 +44,25 @@ $(document).on('submit click', '.smooth-submit', function (e) {
         ...target.smoothSubmitOptions
     }
 
-    const ajaxSettings: AjaxSettings = {}
-
-    let {action, type, preConfirm} = options;
+    let {action, type, preConfirm, crudOptions} = options;
     let data: FormData | Object;
 
     switch ($(target).prop('tagName').toLowerCase()) {
         case 'form':
             action = $(target).attr('action') || action
-            type = $(target).attr('method') || type
+            type = 'post'
             // @ts-ignore
             data = new FormData(target);
-            ajaxSettings.cache = false;
-            ajaxSettings.processData = false;
-            ajaxSettings.contentType = false;
             break;
 
         case 'a':
         case 'button':
             action = $(target).attr('href') || action
             type = $(target).attr('method') || type
+            data = eval($(target).attr('params') || null);
             break;
 
     }
-
-    ajaxSettings.url = action;
-    ajaxSettings.type = type;
-    ajaxSettings.data = data;
 
     const confirmPromise = $.Deferred();
 
@@ -64,16 +73,28 @@ $(document).on('submit click', '.smooth-submit', function (e) {
     }
 
     confirmPromise.promise().then(() => {
-        ajaxSettings.success = data => {
+        $crud.send({
+            checkDataType: false,
+            notify: false,
+            ...crudOptions,
+            url: action,
+            method: type,
+            data: data,
+        }).then(data => {
             $(target).trigger('aftersubmit', [data]);
-        }
-        $.ajax(ajaxSettings);
+        })
     })
 })
 
-$.fn.smoothSubmit = function (options: SmoothSubmitOptions) {
-    $.each(this, function () {
-        this.smoothSubmitOptions = options;
-    });
-    return this;
-}
+
+$(document).on('click', '.choose-file', e => {
+    // @ts-ignore
+    const currentTarget: HTMLButtonElement = e.currentTarget;
+    const {attributes} = currentTarget;
+    // @ts-ignore
+    $.crud().chooseFile({
+        multiple: eval(attributes.multiple),
+
+    })
+    // $(currentTarget).trigger('filechoosen', [file]);
+})

@@ -12,33 +12,36 @@ var __assign = (this && this.__assign) || function () {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var $ = require("jquery");
+var crud_sk_1 = require("crud-sk");
+var $crud = new crud_sk_1.CrudRequest();
+jQuery.crud = function () { return $crud; };
+jQuery.fn.smoothSubmit = function (options) {
+    $.each(this, function () {
+        this.smoothSubmitOptions = options;
+    });
+    return this;
+};
 $(document).on('submit click', '.smooth-submit', function (e) {
     e.preventDefault();
     // @ts-ignore
     var target = e.currentTarget;
     var options = __assign({}, target.smoothSubmitOptions);
-    var ajaxSettings = {};
-    var action = options.action, type = options.type, preConfirm = options.preConfirm;
+    var action = options.action, type = options.type, preConfirm = options.preConfirm, crudOptions = options.crudOptions;
     var data;
     switch ($(target).prop('tagName').toLowerCase()) {
         case 'form':
             action = $(target).attr('action') || action;
-            type = $(target).attr('method') || type;
+            type = 'post';
             // @ts-ignore
             data = new FormData(target);
-            ajaxSettings.cache = false;
-            ajaxSettings.processData = false;
-            ajaxSettings.contentType = false;
             break;
         case 'a':
         case 'button':
             action = $(target).attr('href') || action;
             type = $(target).attr('method') || type;
+            data = eval($(target).attr('params') || null);
             break;
     }
-    ajaxSettings.url = action;
-    ajaxSettings.type = type;
-    ajaxSettings.data = data;
     var confirmPromise = $.Deferred();
     if (preConfirm) {
         preConfirm(target, data).then(confirmPromise.resolve, confirmPromise.reject);
@@ -47,16 +50,19 @@ $(document).on('submit click', '.smooth-submit', function (e) {
         confirmPromise.resolve();
     }
     confirmPromise.promise().then(function () {
-        ajaxSettings.success = function (data) {
+        $crud.send(__assign({ checkDataType: false, notify: false }, crudOptions, { url: action, method: type, data: data })).then(function (data) {
             $(target).trigger('aftersubmit', [data]);
-        };
-        $.ajax(ajaxSettings);
+        });
     });
 });
-$.fn.smoothSubmit = function (options) {
-    $.each(this, function () {
-        this.smoothSubmitOptions = options;
+$(document).on('click', '.choose-file', function (e) {
+    // @ts-ignore
+    var currentTarget = e.currentTarget;
+    var attributes = currentTarget.attributes;
+    // @ts-ignore
+    $.crud().chooseFile({
+        multiple: eval(attributes.multiple),
     });
-    return this;
-};
+    // $(currentTarget).trigger('filechoosen', [file]);
+});
 //# sourceMappingURL=index.js.map

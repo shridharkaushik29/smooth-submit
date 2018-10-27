@@ -8,7 +8,9 @@ module.exports = (env = {}) => {
             filename: env.mode === "development" ? "smooth-submit.js" : "smooth-submit.min.js"
         },
         externals: {
-            jquery: "jQuery"
+            jquery: "jQuery",
+            lodash: "_"
+            // "crud-sk": "CrudRequest"
         }
     }
 }
