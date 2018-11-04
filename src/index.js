@@ -39,7 +39,7 @@ $(document).on('submit click', '.smooth-submit', function (e) {
         case 'button':
             action = $(target).attr('href') || action;
             type = $(target).attr('method') || type;
-            data = eval($(target).attr('params') || null);
+            data = eval('(' + $(target).attr('params') + ')');
             break;
     }
     var confirmPromise = $.Deferred();
