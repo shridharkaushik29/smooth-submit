@@ -1,5 +1,4 @@
 import * as $ from "jquery";
-import AjaxSettings = JQuery.AjaxSettings;
 import {CrudRequest} from "crud-sk";
 import {RequestOptions} from "crud-sk/src";
 
@@ -10,7 +9,9 @@ declare global {
     }
 
     interface JQueryStatic {
-        crud(): CrudRequest
+        crud(): CrudRequest,
+
+        smoothSubmitConfig: (config: SmoothSubmitOptions) => this
     }
 
     interface Element {
@@ -27,7 +28,14 @@ export interface SmoothSubmitOptions {
 
 const $crud = new CrudRequest();
 
+let defaultOptions: SmoothSubmitOptions = {}
+
 jQuery.crud = () => $crud;
+
+jQuery.smoothSubmitConfig = (options: SmoothSubmitOptions) => {
+    defaultOptions = options;
+    return this;
+}
 
 jQuery.fn.smoothSubmit = function (options: SmoothSubmitOptions) {
     $.each(this, function () {
@@ -37,10 +45,10 @@ jQuery.fn.smoothSubmit = function (options: SmoothSubmitOptions) {
 }
 
 $(document).on('submit click', '.smooth-submit', function (e) {
-    e.preventDefault();
     // @ts-ignore
     const target = <Element> e.currentTarget;
     const options = {
+        ...defaultOptions,
         ...target.smoothSubmitOptions
     }
 
@@ -49,17 +57,27 @@ $(document).on('submit click', '.smooth-submit', function (e) {
 
     switch ($(target).prop('tagName').toLowerCase()) {
         case 'form':
-            action = $(target).attr('action') || action
-            type = 'post'
-            // @ts-ignore
-            data = new FormData(target);
+            if (e.type === 'submit') {
+                e.preventDefault();
+                action = $(target).attr('action') || action
+                type = 'post'
+                // @ts-ignore
+                data = new FormData(target);
+            } else {
+                return;
+            }
             break;
 
         case 'a':
         case 'button':
-            action = $(target).attr('href') || action
-            type = $(target).attr('method') || type
-            data = eval('(' + $(target).attr('params') + ')');
+            if (e.type === 'click') {
+                e.preventDefault();
+                action = $(target).attr('href') || action
+                type = $(target).attr('method') || type || 'get'
+                data = eval('(' + $(target).attr('params') + ')' || null);
+            } else {
+                return;
+            }
             break;
 
     }

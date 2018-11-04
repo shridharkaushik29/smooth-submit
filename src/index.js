@@ -10,11 +10,17 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
+var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var $ = require("jquery");
 var crud_sk_1 = require("crud-sk");
 var $crud = new crud_sk_1.CrudRequest();
+var defaultOptions = {};
 jQuery.crud = function () { return $crud; };
+jQuery.smoothSubmitConfig = function (options) {
+    defaultOptions = options;
+    return _this;
+};
 jQuery.fn.smoothSubmit = function (options) {
     $.each(this, function () {
         this.smoothSubmitOptions = options;
@@ -22,24 +28,35 @@ jQuery.fn.smoothSubmit = function (options) {
     return this;
 };
 $(document).on('submit click', '.smooth-submit', function (e) {
-    e.preventDefault();
     // @ts-ignore
     var target = e.currentTarget;
-    var options = __assign({}, target.smoothSubmitOptions);
+    var options = __assign({}, defaultOptions, target.smoothSubmitOptions);
     var action = options.action, type = options.type, preConfirm = options.preConfirm, crudOptions = options.crudOptions;
     var data;
     switch ($(target).prop('tagName').toLowerCase()) {
         case 'form':
-            action = $(target).attr('action') || action;
-            type = 'post';
-            // @ts-ignore
-            data = new FormData(target);
+            if (e.type === 'submit') {
+                e.preventDefault();
+                action = $(target).attr('action') || action;
+                type = 'post';
+                // @ts-ignore
+                data = new FormData(target);
+            }
+            else {
+                return;
+            }
             break;
         case 'a':
         case 'button':
-            action = $(target).attr('href') || action;
-            type = $(target).attr('method') || type;
-            data = eval('(' + $(target).attr('params') + ')');
+            if (e.type === 'click') {
+                e.preventDefault();
+                action = $(target).attr('href') || action;
+                type = $(target).attr('method') || type || 'get';
+                data = eval('(' + $(target).attr('params') + ')' || null);
+            }
+            else {
+                return;
+            }
             break;
     }
     var confirmPromise = $.Deferred();

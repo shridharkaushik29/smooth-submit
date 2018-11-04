@@ -1,11 +1,16 @@
 {
   "name": "smooth-submit",
-  "version": "1.0.7",
+  "version": "1.0.9",
   "main": "src/index.js",
   "description": "smooth form submiting in html5",
   "author": "Shridhar Sharma",
   "repository": "https://github.com/shridharkaushik29/smooth-submit",
   "license": "MIT",
+  "scripts": {
+    "watch_dev": "webpack --env.mode=development --watch",
+    "watch_prod": "webpack --env.mode=production --watch",
+    "watch_ts": "tsc --watch"
+  },
   "dependencies": {
     "crud-sk": "1.x"
   },

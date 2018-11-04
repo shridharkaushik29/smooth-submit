@@ -6,6 +6,7 @@ declare global {
     }
     interface JQueryStatic {
         crud(): CrudRequest;
+        smoothSubmitConfig: (config: SmoothSubmitOptions) => this;
     }
     interface Element {
         smoothSubmitOptions: SmoothSubmitOptions;
